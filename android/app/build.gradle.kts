@@ -23,6 +23,10 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64"))
+        }
     }
 
     buildTypes {
@@ -31,7 +35,6 @@ android {
             isShrinkResources = false
         }
         getByName("release") {
-            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
@@ -41,18 +44,13 @@ android {
         }
     }
 
-
-
     aaptOptions {
-        noCompress.add("tflite")
-        noCompress.add("lite")
+        noCompress.addAll(listOf("tflite", "lite"))
     }
 
     packagingOptions {
-        resources.excludes.add("META-INF/*")
+        resources.excludes.addAll(listOf("META-INF/*"))
     }
-
-    ndkVersion = "27.0.12077973"
 }
 
 flutter {
@@ -60,7 +58,10 @@ flutter {
 }
 
 dependencies {
-    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite:2.14.0") {
+        exclude(group = "com.google.protobuf", module = "protobuf-javalite")
+    }
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

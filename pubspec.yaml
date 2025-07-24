@@ -30,12 +30,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image: ^4.0.17
   image_picker: ^1.0.4
   path_provider: ^2.1.1
   cupertino_icons: ^1.0.8
   permission_handler: ^12.0.1
   tflite_flutter: ^0.11.0
-
 
 dev_dependencies:
   flutter_test:
@@ -52,8 +52,10 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  uses-material-design: true
   assets:
-    - assets/model.tflite
+    - assets/eye_diabetic_retinopathy.jpg
+    - assets/my_model.tflite
     - assets/labels.txt
     - assets/eye_cataract.jpg
     - assets/eye_glaucoma.jpg
@@ -61,7 +63,6 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
-  uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:
