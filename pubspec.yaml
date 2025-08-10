@@ -54,6 +54,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/OculoCheck.png
+    - assets/OculoCheck_clear.png
     - assets/eye_diabetic_retinopathy.jpg
     - assets/my_model.tflite
     - assets/labels.txt

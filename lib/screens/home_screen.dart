@@ -28,26 +28,45 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 10),
+
+                // ✅ App Logo
+                Center(
+                  child: Image.asset(
+                    'assets/OculoCheck_clear.png',
+                    height: 120,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
                 Text(
                   'Bienvenue dans l’application de diagnostic des maladies oculaires.',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF008080)),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF008080),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
                 DiseaseIntroCard(
                   title: 'Rétinopathie diabétique',
                   imagePath: 'assets/eye_diabetic_retinopathy.jpg',
-                  description: "La rétinopathie diabétique est une complication du diabète qui affecte la rétine et peut entraîner une perte de vision si elle n'est pas traitée à temps.",
+                  description:
+                  "La rétinopathie diabétique est une complication du diabète qui affecte la rétine et peut entraîner une perte de vision si elle n'est pas traitée à temps.",
                 ),
                 DiseaseIntroCard(
                   title: 'Glaucome',
                   imagePath: 'assets/eye_glaucoma.jpg',
-                  description: "Le glaucome est une maladie oculaire caractérisée par une augmentation de la pression intraoculaire, pouvant endommager le nerf optique et causer la cécité.",
+                  description:
+                  "Le glaucome est une maladie oculaire caractérisée par une augmentation de la pression intraoculaire, pouvant endommager le nerf optique et causer la cécité.",
                 ),
                 DiseaseIntroCard(
                   title: 'Cataracte',
                   imagePath: 'assets/eye_cataract.jpg',
-                  description: "La cataracte est une opacification du cristallin de l'œil, provoquant une vision floue et une sensibilité à la lumière.",
+                  description:
+                  "La cataracte est une opacification du cristallin de l'œil, provoquant une vision floue et une sensibilité à la lumière.",
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton.icon(
@@ -56,7 +75,9 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const UploadScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const UploadScreen(),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -65,7 +86,10 @@ class HomeScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textStyle: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -142,3 +166,4 @@ class DiseaseIntroCard extends StatelessWidget {
     );
   }
 }
+

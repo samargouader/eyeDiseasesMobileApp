@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'upload_page.dart'; // Import de la page d'upload
+import 'upload_page.dart';
 
 class EyeDiseasesHomePage extends StatefulWidget {
   const EyeDiseasesHomePage({super.key, required this.title});
@@ -17,7 +17,7 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.teal, Colors.lightGreen],
+            colors: [Color(0xFF003366), Color(0xFF0096D6)], // Dark blue to bright blue
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -25,38 +25,42 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
         child: SafeArea(
           child: Column(
             children: [
-              // En-tête avec image de fond
+              // App Logo Header
               Container(
                 height: 200,
                 decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/eye_cataract.jpg'),
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                      Colors.black26,
-                      BlendMode.darken,
-                    ),
-                  ),
+                  color: Color(0xFF003366),
                 ),
                 child: Center(
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black38,
-                          offset: Offset(2.0, 2.0),
-                          blurRadius: 4.0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/OculoCheck.png', // Use your logo here
+                        height: 80,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black38,
+                              offset: Offset(1.5, 1.5),
+                              blurRadius: 4.0,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              // Contenu principal
+              // Content
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -65,7 +69,7 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    color: Colors.white70,
+                    color: Colors.white,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -76,7 +80,7 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.teal,
+                              color: Color(0xFF003366), // Title dark blue
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -106,7 +110,7 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                           Center(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.teal,
+                                backgroundColor: const Color(0xFF00C2C2), // Teal/turquoise
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 20,

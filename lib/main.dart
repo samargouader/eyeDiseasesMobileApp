@@ -13,10 +13,13 @@ class EyeDiseaseApp extends StatelessWidget {
     return MaterialApp(
       title: 'Diagnostic des Maladies Oculaires',
       theme: ThemeData(
-        primarySwatch: Colors.teal,
-        scaffoldBackgroundColor: Colors.blueGrey[50],
+        // Updated primary color based on logo
+        primaryColor: const Color(0xFF003366), // Deep blue
+        scaffoldBackgroundColor: const Color(0xFFF5F9FC), // Light off-white background
+
+        // AppBar style
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF008080),
+          backgroundColor: Color(0xFF003366), // Deep blue
           elevation: 0,
           titleTextStyle: TextStyle(
             color: Colors.white,
@@ -25,15 +28,22 @@ class EyeDiseaseApp extends StatelessWidget {
           ),
           iconTheme: IconThemeData(color: Colors.white),
         ),
+
+        // Button styling
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF008080),
+            backgroundColor: const Color(0xFF00C2C2), // Turquoise
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            textStyle: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
+
+        // Card style
         cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 4,
@@ -41,9 +51,12 @@ class EyeDiseaseApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
+
+        // Text theme
         textTheme: const TextTheme(
-          bodyMedium: TextStyle(fontSize: 16),
+          bodyMedium: TextStyle(fontSize: 16, color: Colors.black87),
         ),
+
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const HomeScreen(),
