@@ -1,166 +1,287 @@
 import 'package:flutter/material.dart';
 import 'upload_screen.dart';
+import 'user_profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Diagnostic des Maladies Oculaires'),
+        title: const Text('OculoCheck'),
         centerTitle: true,
-        backgroundColor: const Color(0xFF008080),
-        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const UserProfileScreen(),
+                ),
+              );
+            },
+            tooltip: 'Profil Utilisateur',
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFE0F7FA), Color(0xFFF1F8E9)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFF8FAFC),
+              Color(0xFFF1F5F9),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 10),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 20),
 
-                // ✅ App Logo
-                Center(
-                  child: Image.asset(
-                    'assets/OculoCheck_clear.png',
-                    height: 120,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                Text(
-                  'Bienvenue dans l’application de diagnostic des maladies oculaires.',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF008080),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                DiseaseIntroCard(
-                  title: 'Rétinopathie diabétique',
-                  imagePath: 'assets/eye_diabetic_retinopathy.jpg',
-                  description:
-                  "La rétinopathie diabétique est une complication du diabète qui affecte la rétine et peut entraîner une perte de vision si elle n'est pas traitée à temps.",
-                ),
-                DiseaseIntroCard(
-                  title: 'Glaucome',
-                  imagePath: 'assets/eye_glaucoma.jpg',
-                  description:
-                  "Le glaucome est une maladie oculaire caractérisée par une augmentation de la pression intraoculaire, pouvant endommager le nerf optique et causer la cécité.",
-                ),
-                DiseaseIntroCard(
-                  title: 'Cataracte',
-                  imagePath: 'assets/eye_cataract.jpg',
-                  description:
-                  "La cataracte est une opacification du cristallin de l'œil, provoquant une vision floue et une sensibilité à la lumière.",
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.upload_file),
-                  label: const Text('Commencer le diagnostic'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const UploadScreen(),
+                  // App Logo with medical styling
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF2E5BBA).withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF008080),
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        'assets/OculoCheck_clear.png',
+                        height: 100,
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 18,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Welcome message with medical typography
+                  Text(
+                    'Diagnostic Intelligent des Maladies Oculaires',
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
+                  
+                  const SizedBox(height: 16),
+                  
+                  Text(
+                    'Analysez vos photos oculaires avec notre technologie d\'intelligence artificielle pour détecter les maladies courantes.',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Disease information cards with medical styling
+                  _buildDiseaseCard(
+                    context,
+                    'Rétinopathie Diabétique',
+                    'assets/eye_diabetic_retinopathy.jpg',
+                    'Complication du diabète affectant la rétine. Détection précoce essentielle pour préserver la vision.',
+                    const Color(0xFFE53E3E),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  _buildDiseaseCard(
+                    context,
+                    'Glaucome',
+                    'assets/eye_glaucoma.jpg',
+                    'Augmentation de la pression intraoculaire pouvant endommager le nerf optique.',
+                    const Color(0xFF3182CE),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  _buildDiseaseCard(
+                    context,
+                    'Cataracte',
+                    'assets/eye_cataract.jpg',
+                    'Opacification du cristallin provoquant une vision floue et sensibilité à la lumière.',
+                    const Color(0xFF38A169),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Medical disclaimer
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF5E7),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFFF6AD55),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: const Color(0xFFDD6B20),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Ce diagnostic est informatif et ne remplace pas une consultation médicale professionnelle.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: const Color(0xFFDD6B20),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Start diagnosis button with medical styling
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.camera_alt, size: 24),
+                    label: const Text('Commencer le Diagnostic'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const UploadScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      shadowColor: theme.colorScheme.primary.withOpacity(0.3),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
-}
 
-class DiseaseIntroCard extends StatelessWidget {
-  final String title;
-  final String imagePath;
-  final String description;
-
-  const DiseaseIntroCard({
-    required this.title,
-    required this.imagePath,
-    required this.description,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildDiseaseCard(
+    BuildContext context,
+    String title,
+    String imagePath,
+    String description,
+    Color accentColor,
+  ) {
+    final theme = Theme.of(context);
+    
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                imagePath,
+      elevation: 4,
+      shadowColor: accentColor.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: accentColor.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Disease image with medical styling
+              Container(
                 width: 80,
                 height: 80,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 80,
-                  height: 80,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: accentColor.withOpacity(0.3),
+                    width: 2,
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Color(0xFF008080),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    imagePath,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: accentColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.medical_services,
+                        color: accentColor,
+                        size: 32,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    description,
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+              
+              const SizedBox(width: 20),
+              
+              // Disease information
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: accentColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      description,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

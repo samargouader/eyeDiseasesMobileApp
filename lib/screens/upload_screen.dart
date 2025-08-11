@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
+import '../models/test.dart';
+import '../models/user.dart';
+import '../services/database_service.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});
@@ -20,11 +23,14 @@ class _UploadScreenState extends State<UploadScreen> {
   bool _pickerActive = false;
   Interpreter? _interpreter;
   List<String> _labels = [];
+  final DatabaseService _databaseService = DatabaseService();
+  User? _currentUser;
 
   @override
   void initState() {
     super.initState();
     _loadModelAndLabels();
+    _loadCurrentUser();
   }
 
   Future<void> _loadModelAndLabels() async {
@@ -36,8 +42,24 @@ class _UploadScreenState extends State<UploadScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur de chargement du modèle: $e')),
+        SnackBar(
+          content: Text('Erreur de chargement du modèle: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final users = await _databaseService.getAllUsers();
+      if (users.isNotEmpty) {
+        setState(() {
+          _currentUser = users.first;
+        });
+      }
+    } catch (e) {
+      // User might not exist yet, which is fine
     }
   }
 
@@ -87,12 +109,50 @@ class _UploadScreenState extends State<UploadScreen> {
         _result = _labels[maxIdx];
         _confidence = maxScore * 100;
       });
+      
+      // Save test result to database
+      await _saveTestResult();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de la prédiction: $e')),
+        SnackBar(
+          content: Text('Erreur lors de la prédiction: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     } finally {
       setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _saveTestResult() async {
+    if (_currentUser == null || _result == null || _confidence == null || _image == null) {
+      return;
+    }
+
+    try {
+      final test = Test(
+        imagePath: _image!.path,
+        result: _result!,
+        confidence: _confidence!,
+        userId: _currentUser!.id!,
+        createdAt: DateTime.now(),
+      );
+
+      await _databaseService.insertTest(test);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Résultat sauvegardé avec succès'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la sauvegarde: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
     }
   }
 
@@ -104,96 +164,387 @@ class _UploadScreenState extends State<UploadScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Analyse de l’Image'),
+        title: const Text('Analyse d\'Image'),
         centerTitle: true,
-        backgroundColor: const Color(0xFF008080),
-        elevation: 0,
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFE0F7FA), Color(0xFFF1F8E9)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFF8FAFC),
+              Color(0xFFF1F5F9),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 10),
-                if (_image != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.file(_image!, height: 220, fit: BoxFit.cover),
-                  )
-                else
-                  Container(
-                    height: 220,
-                    decoration: BoxDecoration(
-                      color: Colors.blueGrey[100],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Center(
-                      child: Text('Aucune image sélectionnée', style: TextStyle(color: Colors.black54)),
-                    ),
-                  ),
-                const SizedBox(height: 30),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text('Sélectionner une image'),
-                  onPressed: _loading || _pickerActive ? null : _pickImage,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF008080),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 20),
+
+                  // Instructions card
+                  Card(
+                    elevation: 4,
+                    shadowColor: theme.colorScheme.primary.withOpacity(0.1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 30),
-                if (_loading)
-                  const Center(child: CircularProgressIndicator(color: Color(0xFF008080))),
-                if (_result != null && !_loading)
-                  Card(
-                    margin: const EdgeInsets.only(top: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 3,
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
                         children: [
+                          Icon(
+                            Icons.camera_alt,
+                            size: 48,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(height: 16),
                           Text(
-                            _result == 'Normal' ? 'Aucune maladie détectée' : 'Maladie détectée : $_result',
-                            style: TextStyle(
-                              fontSize: 20,
+                            'Analyse d\'Image Oculaire',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              color: theme.colorScheme.primary,
                               fontWeight: FontWeight.bold,
-                              color: _result == 'Normal' ? Colors.green : Colors.red,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          if (_confidence != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                'Confiance : ${_confidence!.toStringAsFixed(1)}%',
-                                style: const TextStyle(fontSize: 16),
-                              ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Sélectionnez une photo claire de votre œil pour obtenir un diagnostic préliminaire.',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
                   ),
-              ],
+
+                  const SizedBox(height: 24),
+
+                  // Image display area
+                  Container(
+                    height: 280,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: theme.colorScheme.outline,
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.shadow,
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: _image != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(14),
+                            child: Image.file(
+                              _image!,
+                              width: double.infinity,
+                              height: 280,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_photo_alternate_outlined,
+                                size: 64,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Aucune image sélectionnée',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Appuyez sur le bouton ci-dessous',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Upload button
+                  ElevatedButton.icon(
+                    icon: Icon(
+                      _loading ? Icons.hourglass_empty : Icons.photo_library,
+                      size: 24,
+                    ),
+                    label: Text(_loading ? 'Analyse en cours...' : 'Sélectionner une Image'),
+                    onPressed: _loading || _pickerActive ? null : _pickImage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      shadowColor: theme.colorScheme.primary.withOpacity(0.3),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Loading indicator
+                  if (_loading)
+                    Card(
+                      elevation: 4,
+                      shadowColor: theme.colorScheme.primary.withOpacity(0.1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          children: [
+                            CircularProgressIndicator(
+                              color: theme.colorScheme.primary,
+                              strokeWidth: 3,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Analyse en cours...',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Veuillez patienter pendant que notre IA analyse votre image',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // Results card
+                  if (_result != null && !_loading)
+                    Card(
+                      elevation: 4,
+                      shadowColor: _getResultColor(_result!).withOpacity(0.1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: _getResultColor(_result!).withOpacity(0.3),
+                            width: 2,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            children: [
+                              // Result icon
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: _getResultColor(_result!).withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  _getResultIcon(_result!),
+                                  size: 48,
+                                  color: _getResultColor(_result!),
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 20),
+                              
+                              // Result title
+                              Text(
+                                _getResultTitle(_result!),
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: _getResultColor(_result!),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              
+                              const SizedBox(height: 12),
+                              
+                              // Result description
+                              Text(
+                                _getResultDescription(_result!),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              
+                              if (_confidence != null) ...[
+                                const SizedBox(height: 20),
+                                
+                                // Confidence indicator
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _getResultColor(_result!).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: _getResultColor(_result!).withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Confiance: ${_confidence!.toStringAsFixed(1)}%',
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      color: _getResultColor(_result!),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              
+                              const SizedBox(height: 20),
+                              
+                              // Medical disclaimer
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEF5E7),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFFF6AD55),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.medical_services,
+                                      color: const Color(0xFFDD6B20),
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Consultez un ophtalmologue pour un diagnostic complet',
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: const Color(0xFFDD6B20),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Color _getResultColor(String result) {
+    switch (result.toLowerCase()) {
+      case 'normal':
+        return const Color(0xFF38A169); // Green for normal
+      case 'diabetic retinopathy':
+      case 'rétinopathie diabétique':
+        return const Color(0xFFE53E3E); // Red for diabetic retinopathy
+      case 'glaucoma':
+      case 'glaucome':
+        return const Color(0xFF3182CE); // Blue for glaucoma
+      case 'cataract':
+      case 'cataracte':
+        return const Color(0xFF805AD5); // Purple for cataract
+      default:
+        return const Color(0xFF2E5BBA); // Default medical blue
+    }
+  }
+
+  IconData _getResultIcon(String result) {
+    switch (result.toLowerCase()) {
+      case 'normal':
+        return Icons.check_circle;
+      case 'diabetic retinopathy':
+      case 'rétinopathie diabétique':
+        return Icons.warning;
+      case 'glaucoma':
+      case 'glaucome':
+        return Icons.visibility_off;
+      case 'cataract':
+      case 'cataracte':
+        return Icons.blur_on;
+      default:
+        return Icons.medical_services;
+    }
+  }
+
+  String _getResultTitle(String result) {
+    switch (result.toLowerCase()) {
+      case 'normal':
+        return 'Aucune Maladie Détectée';
+      case 'diabetic retinopathy':
+      case 'rétinopathie diabétique':
+        return 'Rétinopathie Diabétique Détectée';
+      case 'glaucoma':
+      case 'glaucome':
+        return 'Glaucome Détecté';
+      case 'cataract':
+      case 'cataracte':
+        return 'Cataracte Détectée';
+      default:
+        return 'Résultat: $result';
+    }
+  }
+
+  String _getResultDescription(String result) {
+    switch (result.toLowerCase()) {
+      case 'normal':
+        return 'Votre œil semble en bonne santé. Continuez à maintenir une bonne hygiène oculaire.';
+      case 'diabetic retinopathy':
+      case 'rétinopathie diabétique':
+        return 'Des signes de rétinopathie diabétique ont été détectés. Une consultation ophtalmologique urgente est recommandée.';
+      case 'glaucoma':
+      case 'glaucome':
+        return 'Des signes de glaucome ont été détectés. Une évaluation ophtalmologique est nécessaire.';
+      case 'cataract':
+      case 'cataracte':
+        return 'Des signes de cataracte ont été détectés. Consultez un ophtalmologue pour évaluation.';
+      default:
+        return 'Résultat d\'analyse: $result';
+    }
   }
 }
