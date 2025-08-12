@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'upload_screen.dart';
 import 'test_history_screen.dart';
+import 'tips_screen.dart';
+import 'settings_screen.dart';
+import 'about_screen.dart';
+import 'faq_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,14 +27,71 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('OculoCheck'),
         centerTitle: true,
-        actions: const [],
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              switch (value) {
+                case 'tips':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TipsScreen(),
+                    ),
+                  );
+                  break;
+                case 'settings':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                  break;
+                case 'about':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AboutScreen(),
+                    ),
+                  );
+                  break;
+                case 'faq':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FaqScreen(),
+                    ),
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'tips',
+                child: Text('Conseils'),
+              ),
+              PopupMenuItem(
+                value: 'settings',
+                child: Text('Paramètres'),
+              ),
+              PopupMenuItem(
+                value: 'faq',
+                child: Text('FAQ'),
+              ),
+              PopupMenuItem(
+                value: 'about',
+                child: Text('À propos'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFF8FAFC),
-              Color(0xFFF1F5F9),
+              theme.colorScheme.background,
+              theme.colorScheme.surface,
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -49,11 +110,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF2E5BBA).withOpacity(0.1),
+                            color: theme.colorScheme.primary.withOpacity(0.1),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -123,10 +184,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF5E7),
+                      color: theme.brightness == Brightness.dark 
+                          ? const Color(0xFF1A0F00)
+                          : const Color(0xFFFEF5E7),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: const Color(0xFFF6AD55),
+                        color: theme.brightness == Brightness.dark 
+                            ? const Color(0xFF92400E)
+                            : const Color(0xFFF6AD55),
                         width: 1,
                       ),
                     ),
@@ -134,7 +199,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Icon(
                           Icons.info_outline,
-                          color: const Color(0xFFDD6B20),
+                          color: theme.brightness == Brightness.dark 
+                              ? const Color(0xFFF59E0B)
+                              : const Color(0xFFDD6B20),
                           size: 20,
                         ),
                         const SizedBox(width: 12),
@@ -142,7 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text(
                             'Ce diagnostic est informatif et ne remplace pas une consultation médicale professionnelle.',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFFDD6B20),
+                              color: theme.brightness == Brightness.dark 
+                                  ? const Color(0xFFF59E0B)
+                                  : const Color(0xFFDD6B20),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -156,26 +225,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.camera_alt, size: 24),
-                          label: const Text('Nouveau Diagnostic'),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const UploadScreen(),
+                        child: Tooltip(
+                          message: 'Démarrer un nouveau diagnostic avec une photo',
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.camera_alt, size: 24),
+                            label: const Text('Nouveau diagnostic'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const UploadScreen(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.colorScheme.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 22),
+                              minimumSize: const Size.fromHeight(56),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.colorScheme.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              elevation: 4,
+                              shadowColor: theme.colorScheme.primary.withOpacity(0.3),
                             ),
-                            elevation: 4,
-                            shadowColor: theme.colorScheme.primary.withOpacity(0.3),
                           ),
                         ),
                       ),

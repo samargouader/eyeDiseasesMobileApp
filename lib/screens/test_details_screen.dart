@@ -61,7 +61,8 @@ class _TestDetailsScreenState extends State<TestDetailsScreen> {
                           ),
                         ),
                       const SizedBox(height: 16),
-                      _buildRow('Nom', '${_test!['name']} ${_test!['lastName']}'),
+                      // Confidentialité: masquer nom et prénom
+                      _buildRow('Patient', 'Anonyme'),
                       _buildRow('Âge', '${_test!['age']}'),
                       _buildRow('Résultat', '${_test!['result']}'),
                       if (_test!['createdAt'] != null)

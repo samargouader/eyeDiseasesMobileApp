@@ -195,7 +195,7 @@ class _UploadScreenState extends State<UploadScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Analyse d\'Image'),
+        title: const Text('Analyse d\'Image (Appareil spécialisé)'),
         centerTitle: true,
       ),
       body: Container(
@@ -244,7 +244,7 @@ class _UploadScreenState extends State<UploadScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Sélectionnez une photo claire de votre œil pour obtenir un diagnostic préliminaire.',
+                            'Importez une image issue de votre dispositif (JPEG/PNG sRGB, ≥ 2048 px) pour un avis préliminaire.',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),

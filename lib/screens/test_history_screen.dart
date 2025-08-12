@@ -183,20 +183,19 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              if (test['name'] != null && test['lastName'] != null) ...[
-                                                Text(
-                                                  '${test['name']} ${test['lastName']}',
-                                                  style: theme.textTheme.titleMedium?.copyWith(
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                                              Text(
+                                                'Patient anonyme',
+                                                style: theme.textTheme.titleMedium?.copyWith(
+                                                  fontWeight: FontWeight.w600,
                                                 ),
+                                              ),
+                                              if (test['age'] != null)
                                                 Text(
                                                   'Âge: ${test['age']} ans',
                                                   style: theme.textTheme.bodySmall?.copyWith(
                                                     color: theme.colorScheme.onSurfaceVariant,
                                                   ),
                                                 ),
-                                              ],
                                             ],
                                           ),
                                         ),
