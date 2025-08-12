@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/test.dart';
-import '../models/user.dart';
 import '../services/database_service.dart';
+import 'test_details_screen.dart';
 
 class TestHistoryScreen extends StatefulWidget {
   const TestHistoryScreen({super.key});
@@ -168,7 +168,6 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Header with user info and date
                                     Row(
                                       children: [
                                         CircleAvatar(
@@ -184,18 +183,20 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                '${test['name']} ${test['lastName']}',
-                                                style: theme.textTheme.titleMedium?.copyWith(
-                                                  fontWeight: FontWeight.w600,
+                                              if (test['name'] != null && test['lastName'] != null) ...[
+                                                Text(
+                                                  '${test['name']} ${test['lastName']}',
+                                                  style: theme.textTheme.titleMedium?.copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                'Âge: ${test['age']} ans',
-                                                style: theme.textTheme.bodySmall?.copyWith(
-                                                  color: theme.colorScheme.onSurfaceVariant,
+                                                Text(
+                                                  'Âge: ${test['age']} ans',
+                                                  style: theme.textTheme.bodySmall?.copyWith(
+                                                    color: theme.colorScheme.onSurfaceVariant,
+                                                  ),
                                                 ),
-                                              ),
+                                              ],
                                             ],
                                           ),
                                         ),
@@ -210,7 +211,6 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                                     
                                     const SizedBox(height: 16),
                                     
-                                    // Test image
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
                                       child: Image.file(
@@ -236,7 +236,6 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                                     
                                     const SizedBox(height: 16),
                                     
-                                    // Result information
                                     Row(
                                       children: [
                                         Container(
@@ -263,12 +262,6 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
-                                              Text(
-                                                'Confiance: ${test['confidence'].toStringAsFixed(1)}%',
-                                                style: theme.textTheme.bodySmall?.copyWith(
-                                                  color: theme.colorScheme.onSurfaceVariant,
-                                                ),
-                                              ),
                                             ],
                                           ),
                                         ),
@@ -277,19 +270,17 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                                     
                                     const SizedBox(height: 12),
                                     
-                                    // Action buttons
                                     Row(
                                       children: [
                                         Expanded(
                                           child: OutlinedButton.icon(
                                             icon: const Icon(Icons.visibility, size: 16),
                                             label: const Text('Voir Détails'),
-                                            onPressed: () {
-                                              // TODO: Navigate to detailed test view
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: const Text('Fonctionnalité à venir'),
-                                                  backgroundColor: theme.colorScheme.primary,
+                                            onPressed: () async {
+                                              final id = test['id'] as int;
+                                              await Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => TestDetailsScreen(testId: id),
                                                 ),
                                               );
                                             },
@@ -307,7 +298,6 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                                             icon: const Icon(Icons.share, size: 16),
                                             label: const Text('Partager'),
                                             onPressed: () {
-                                              // TODO: Implement share functionality
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(
                                                   content: const Text('Fonctionnalité à venir'),

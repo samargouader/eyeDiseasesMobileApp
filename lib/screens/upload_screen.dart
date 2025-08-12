@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 import '../models/test.dart';
-import '../models/user.dart';
 import '../services/database_service.dart';
 
 class UploadScreen extends StatefulWidget {
@@ -24,43 +23,60 @@ class _UploadScreenState extends State<UploadScreen> {
   Interpreter? _interpreter;
   List<String> _labels = [];
   final DatabaseService _databaseService = DatabaseService();
-  User? _currentUser;
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _ageController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadModelAndLabels();
-    _loadCurrentUser();
+    _databaseService.initializeDatabase();
   }
 
   Future<void> _loadModelAndLabels() async {
     try {
       _interpreter = await Interpreter.fromAsset('assets/my_model.tflite');
+      
       final labelsData = await DefaultAssetBundle.of(context).loadString('assets/labels.txt');
       setState(() {
         _labels = labelsData.split('\n').where((e) => e.isNotEmpty).toList();
       });
+      
+      print('Model and labels loaded successfully');
     } catch (e) {
+      print('Error loading model: $e');
+      
+      String errorMessage = 'Erreur de chargement du modèle IA';
+      if (e.toString().contains('FULLY_CONNECTED')) {
+        errorMessage = 'Version du modèle incompatible. Veuillez mettre à jour l\'application.';
+      } else if (e.toString().contains('FileSystemException')) {
+        errorMessage = 'Fichier modèle manquant. Veuillez réinstaller l\'application.';
+      }
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur de chargement du modèle: $e'),
+          content: Text(errorMessage),
           backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Réessayer',
+            textColor: Colors.white,
+            onPressed: () => _loadModelAndLabels(),
+          ),
         ),
       );
     }
   }
 
-  Future<void> _loadCurrentUser() async {
-    try {
-      final users = await _databaseService.getAllUsers();
-      if (users.isNotEmpty) {
-        setState(() {
-          _currentUser = users.first;
-        });
-      }
-    } catch (e) {
-      // User might not exist yet, which is fine
-    }
+  @override
+  void dispose() {
+    _interpreter?.close();
+    _nameController.dispose();
+    _lastNameController.dispose();
+    _ageController.dispose();
+    super.dispose();
   }
 
   Future<void> _pickImage() async {
@@ -75,7 +91,6 @@ class _UploadScreenState extends State<UploadScreen> {
           _result = null;
           _confidence = null;
         });
-        await _predict(_image!);
       }
     } finally {
       setState(() { _pickerActive = false; });
@@ -85,11 +100,16 @@ class _UploadScreenState extends State<UploadScreen> {
   Future<void> _predict(File imageFile) async {
     setState(() => _loading = true);
     try {
+      if (_interpreter == null) {
+        throw Exception('Modèle IA non chargé. Veuillez redémarrer l\'application.');
+      }
+      
       final bytes = await imageFile.readAsBytes();
       final img.Image? oriImage = img.decodeImage(bytes);
       if (oriImage == null) throw Exception('Image non valide');
+      
       final img.Image resized = img.copyResize(oriImage, width: 224, height: 224);
-      // Convert to Float32List and normalize
+      
       final input = Float32List(1 * 224 * 224 * 3);
       int pixelIndex = 0;
       for (int y = 0; y < 224; y++) {
@@ -100,23 +120,37 @@ class _UploadScreenState extends State<UploadScreen> {
           input[pixelIndex++] = pixel.b / 255.0;
         }
       }
-      var output = List.filled(_labels.length, 0.0).reshape([1, _labels.length]);
-      _interpreter?.run(input.reshape([1, 224, 224, 3]), output);
-      final scores = output[0];
+      
+      var output = List.filled(4, 0.0).reshape([1, 4]);
+      _interpreter!.run(input.reshape([1, 224, 224, 3]), output);
+      
+      final scores = output[0] as List<double>;
       final maxScore = scores.reduce((a, b) => a > b ? a : b);
       final maxIdx = scores.indexOf(maxScore);
-      setState(() {
-        _result = _labels[maxIdx];
-        _confidence = maxScore * 100;
-      });
       
-      // Save test result to database
-      await _saveTestResult();
+      if (maxIdx < 0 || maxIdx >= _labels.length) {
+        throw Exception('Index de résultat invalide: $maxIdx');
+      }
+      _result = _labels[maxIdx];
+      _confidence = maxScore * 100;
+      
     } catch (e) {
+      print('Prediction error: $e');
+      
+      String errorMessage = 'Erreur lors de l\'analyse de l\'image';
+      if (e.toString().contains('FULLY_CONNECTED')) {
+        errorMessage = 'Version du modèle incompatible. Veuillez mettre à jour l\'application.';
+      } else if (e.toString().contains('Modèle IA non chargé')) {
+        errorMessage = 'Modèle IA non disponible. Veuillez redémarrer l\'application.';
+      } else if (e.toString().contains('Image non valide')) {
+        errorMessage = 'Format d\'image non supporté. Veuillez choisir une autre image.';
+      }
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur lors de la prédiction: $e'),
+          content: Text(errorMessage),
           backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 4),
         ),
       );
     } finally {
@@ -125,21 +159,18 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   Future<void> _saveTestResult() async {
-    if (_currentUser == null || _result == null || _confidence == null || _image == null) {
-      return;
-    }
-
+    if (_result == null || _confidence == null || _image == null) return;
     try {
       final test = Test(
         imagePath: _image!.path,
         result: _result!,
         confidence: _confidence!,
-        userId: _currentUser!.id!,
+        name: _nameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        age: int.parse(_ageController.text.trim()),
         createdAt: DateTime.now(),
       );
-
       await _databaseService.insertTest(test);
-      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Résultat sauvegardé avec succès'),
@@ -156,11 +187,7 @@ class _UploadScreenState extends State<UploadScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _interpreter?.close();
-    super.dispose();
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +218,6 @@ class _UploadScreenState extends State<UploadScreen> {
                 children: [
                   const SizedBox(height: 20),
 
-                  // Instructions card
                   Card(
                     elevation: 4,
                     shadowColor: theme.colorScheme.primary.withOpacity(0.1),
@@ -231,7 +257,6 @@ class _UploadScreenState extends State<UploadScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Image display area
                   Container(
                     height: 280,
                     decoration: BoxDecoration(
@@ -287,7 +312,39 @@ class _UploadScreenState extends State<UploadScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Upload button
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(labelText: 'Prénom'),
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Obligatoire' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _lastNameController,
+                          decoration: const InputDecoration(labelText: 'Nom'),
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Obligatoire' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _ageController,
+                          decoration: const InputDecoration(labelText: 'Âge'),
+                          keyboardType: TextInputType.number,
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) return 'Obligatoire';
+                            final n = int.tryParse(v);
+                            if (n == null || n <= 0 || n > 120) return 'Âge invalide';
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
                   ElevatedButton.icon(
                     icon: Icon(
                       _loading ? Icons.hourglass_empty : Icons.photo_library,
@@ -309,7 +366,47 @@ class _UploadScreenState extends State<UploadScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Loading indicator
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.science, size: 24),
+                    label: const Text('Tester'),
+                    onPressed: _loading
+                        ? null
+                        : () async {
+                            if (!(_formKey.currentState?.validate() ?? false)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Veuillez remplir le formulaire'),
+                                  backgroundColor: Theme.of(context).colorScheme.error,
+                                ),
+                              );
+                              return;
+                            }
+                            if (_image == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Veuillez sélectionner une image'),
+                                  backgroundColor: Theme.of(context).colorScheme.error,
+                                ),
+                              );
+                              return;
+                            }
+                            await _predict(_image!);
+                            if (_result != null) {
+                              await _saveTestResult();
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2E5BBA),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
                   if (_loading)
                     Card(
                       elevation: 4,
@@ -346,7 +443,6 @@ class _UploadScreenState extends State<UploadScreen> {
                       ),
                     ),
 
-                  // Results card
                   if (_result != null && !_loading)
                     Card(
                       elevation: 4,
@@ -366,7 +462,6 @@ class _UploadScreenState extends State<UploadScreen> {
                           padding: const EdgeInsets.all(24.0),
                           child: Column(
                             children: [
-                              // Result icon
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
@@ -379,10 +474,7 @@ class _UploadScreenState extends State<UploadScreen> {
                                   color: _getResultColor(_result!),
                                 ),
                               ),
-                              
                               const SizedBox(height: 20),
-                              
-                              // Result title
                               Text(
                                 _getResultTitle(_result!),
                                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -391,10 +483,7 @@ class _UploadScreenState extends State<UploadScreen> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              
                               const SizedBox(height: 12),
-                              
-                              // Result description
                               Text(
                                 _getResultDescription(_result!),
                                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -402,36 +491,7 @@ class _UploadScreenState extends State<UploadScreen> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              
-                              if (_confidence != null) ...[
-                                const SizedBox(height: 20),
-                                
-                                // Confidence indicator
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _getResultColor(_result!).withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: _getResultColor(_result!).withOpacity(0.3),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Confiance: ${_confidence!.toStringAsFixed(1)}%',
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      color: _getResultColor(_result!),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              
                               const SizedBox(height: 20),
-                              
-                              // Medical disclaimer
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -479,18 +539,18 @@ class _UploadScreenState extends State<UploadScreen> {
   Color _getResultColor(String result) {
     switch (result.toLowerCase()) {
       case 'normal':
-        return const Color(0xFF38A169); // Green for normal
+        return const Color(0xFF38A169);
       case 'diabetic retinopathy':
       case 'rétinopathie diabétique':
-        return const Color(0xFFE53E3E); // Red for diabetic retinopathy
+        return const Color(0xFFE53E3E);
       case 'glaucoma':
       case 'glaucome':
-        return const Color(0xFF3182CE); // Blue for glaucoma
+        return const Color(0xFF3182CE);
       case 'cataract':
       case 'cataracte':
-        return const Color(0xFF805AD5); // Purple for cataract
+        return const Color(0xFF805AD5);
       default:
-        return const Color(0xFF2E5BBA); // Default medical blue
+        return const Color(0xFF2E5BBA);
     }
   }
 

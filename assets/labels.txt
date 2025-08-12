@@ -1,3 +1,4 @@
 Cataracte
 Glaucome
 Normal
+Diabetic Retinopathy

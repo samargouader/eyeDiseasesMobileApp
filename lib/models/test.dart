@@ -3,7 +3,9 @@ class Test {
   final String imagePath;
   final String result;
   final double confidence;
-  final int userId;
+  final String name;
+  final String lastName;
+  final int age;
   final DateTime? createdAt;
 
   Test({
@@ -11,41 +13,52 @@ class Test {
     required this.imagePath,
     required this.result,
     required this.confidence,
-    required this.userId,
+    required this.name,
+    required this.lastName,
+    required this.age,
     this.createdAt,
   });
 
-  // Convert Test object to Map for database operations
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'imagePath': imagePath,
       'result': result,
       'confidence': confidence,
-      'userId': userId,
+      'name': name,
+      'lastName': lastName,
+      'age': age,
       'createdAt': createdAt?.toIso8601String(),
     };
   }
 
-  // Create Test object from Map (from database)
   factory Test.fromMap(Map<String, dynamic> map) {
     return Test(
-      id: map['id'],
-      imagePath: map['imagePath'],
-      result: map['result'],
-      confidence: (map['confidence'] is int) ? (map['confidence'] as int).toDouble() : map['confidence'],
-      userId: map['userId'],
-      createdAt: map['createdAt'] != null ? DateTime.parse(map['createdAt']) : null,
+      id: map['id'] as int?,
+      imagePath: map['imagePath'] as String,
+      result: map['result'] as String,
+      confidence: map['confidence'] is int
+          ? (map['confidence'] as int).toDouble()
+          : (map['confidence'] as num).toDouble(),
+      name: map['name'] as String,
+      lastName: map['lastName'] as String,
+      age: map['age'] is String
+          ? int.parse(map['age'] as String)
+          : map['age'] as int,
+      createdAt: map['createdAt'] != null
+          ? DateTime.tryParse(map['createdAt'] as String)
+          : null,
     );
   }
 
-  // Create a copy of Test with updated fields
   Test copyWith({
     int? id,
     String? imagePath,
     String? result,
     double? confidence,
-    int? userId,
+    String? name,
+    String? lastName,
+    int? age,
     DateTime? createdAt,
   }) {
     return Test(
@@ -53,14 +66,16 @@ class Test {
       imagePath: imagePath ?? this.imagePath,
       result: result ?? this.result,
       confidence: confidence ?? this.confidence,
-      userId: userId ?? this.userId,
+      name: name ?? this.name,
+      lastName: lastName ?? this.lastName,
+      age: age ?? this.age,
       createdAt: createdAt ?? this.createdAt,
     );
   }
 
   @override
   String toString() {
-    return 'Test(id: $id, imagePath: $imagePath, result: $result, confidence: $confidence, userId: $userId, createdAt: $createdAt)';
+    return 'Test(id: $id, imagePath: $imagePath, result: $result, confidence: $confidence, name: $name, lastName: $lastName, age: $age, createdAt: $createdAt)';
   }
 
   @override
@@ -71,7 +86,9 @@ class Test {
         other.imagePath == imagePath &&
         other.result == result &&
         other.confidence == confidence &&
-        other.userId == userId &&
+        other.name == name &&
+        other.lastName == lastName &&
+        other.age == age &&
         other.createdAt == createdAt;
   }
 
@@ -81,7 +98,9 @@ class Test {
         imagePath.hashCode ^
         result.hashCode ^
         confidence.hashCode ^
-        userId.hashCode ^
+        name.hashCode ^
+        lastName.hashCode ^
+        age.hashCode ^
         createdAt.hashCode;
   }
 }

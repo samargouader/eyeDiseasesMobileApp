@@ -5,14 +5,12 @@ import 'services/database_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize the database
   try {
     final databaseService = DatabaseService();
     await databaseService.initializeDatabase();
     print('Database initialized successfully');
   } catch (e) {
     print('Error initializing database: $e');
-    // You might want to show an error dialog or handle this differently
   }
   
   runApp(const EyeDiseaseApp());
@@ -26,12 +24,10 @@ class EyeDiseaseApp extends StatelessWidget {
     return MaterialApp(
       title: 'OculoCheck - Diagnostic Oculaire',
       theme: ThemeData(
-        // Medical Professional Color Palette
         primarySwatch: Colors.blue,
-        primaryColor: const Color(0xFF2E5BBA), // Professional medical blue
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC), // Clean, light background
+        primaryColor: const Color(0xFF2E5BBA),
+        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         
-        // AppBar styling for medical apps
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF2E5BBA),
           foregroundColor: Colors.white,
@@ -47,7 +43,6 @@ class EyeDiseaseApp extends StatelessWidget {
           centerTitle: true,
         ),
 
-        // Medical-focused button styling
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF2E5BBA),
@@ -66,7 +61,6 @@ class EyeDiseaseApp extends StatelessWidget {
           ),
         ),
 
-        // Secondary button for less critical actions
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             foregroundColor: const Color(0xFF2E5BBA),
@@ -83,8 +77,7 @@ class EyeDiseaseApp extends StatelessWidget {
           ),
         ),
 
-        // Medical card styling
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 3,
           shadowColor: const Color(0x0A000000),
@@ -94,7 +87,6 @@ class EyeDiseaseApp extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         ),
 
-        // Professional typography for medical content
         textTheme: const TextTheme(
           displayLarge: TextStyle(
             fontSize: 32,
@@ -185,7 +177,6 @@ class EyeDiseaseApp extends StatelessWidget {
           ),
         ),
 
-        // Medical-focused color scheme
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
           primary: Color(0xFF2E5BBA),
@@ -212,11 +203,9 @@ class EyeDiseaseApp extends StatelessWidget {
           surfaceTint: Color(0xFF2E5BBA),
         ),
 
-        // Medical app specific settings
         visualDensity: VisualDensity.adaptivePlatformDensity,
         useMaterial3: true,
         
-        // Input decoration for forms
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: const Color(0xFFF7FAFC),
@@ -241,14 +230,12 @@ class EyeDiseaseApp extends StatelessWidget {
           hintStyle: const TextStyle(color: Color(0xFFA0AEC0)),
         ),
 
-        // Progress indicator styling
         progressIndicatorTheme: const ProgressIndicatorThemeData(
           color: Color(0xFF2E5BBA),
           linearTrackColor: Color(0xFFE2E8F0),
           circularTrackColor: Color(0xFFE2E8F0),
         ),
 
-        // Divider styling
         dividerTheme: const DividerThemeData(
           color: Color(0xFFE2E8F0),
           thickness: 1,

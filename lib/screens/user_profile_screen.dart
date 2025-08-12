@@ -28,7 +28,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Future<void> _loadUserProfile() async {
     try {
-      // For demo purposes, we'll get the first user or create a default one
       final users = await _databaseService.getAllUsers();
       if (users.isNotEmpty) {
         setState(() {
@@ -65,7 +64,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
       int userId;
       if (_currentUser == null) {
-        // Create new user
         userId = await _databaseService.insertUser(user);
         setState(() {
           _currentUser = user.copyWith(id: userId);
@@ -77,7 +75,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
         );
       } else {
-        // Update existing user
         await _databaseService.updateUser(user);
         setState(() {
           _currentUser = user;
@@ -140,7 +137,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         children: [
                           const SizedBox(height: 20),
 
-                          // Profile header
                           Card(
                             elevation: 4,
                             shadowColor: theme.colorScheme.primary.withOpacity(0.1),
@@ -187,7 +183,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                           const SizedBox(height: 24),
 
-                          // Form fields
                           Card(
                             elevation: 4,
                             shadowColor: theme.colorScheme.shadow,
@@ -208,7 +203,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   ),
                                   const SizedBox(height: 20),
 
-                                  // Name field
                                   TextFormField(
                                     controller: _nameController,
                                     decoration: const InputDecoration(
@@ -226,7 +220,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                                   const SizedBox(height: 16),
 
-                                  // Last name field
                                   TextFormField(
                                     controller: _lastNameController,
                                     decoration: const InputDecoration(
@@ -244,7 +237,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                                   const SizedBox(height: 16),
 
-                                  // Age field
                                   TextFormField(
                                     controller: _ageController,
                                     decoration: const InputDecoration(
@@ -271,7 +263,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                           const SizedBox(height: 32),
 
-                          // Save button
                           ElevatedButton.icon(
                             icon: const Icon(Icons.save, size: 24),
                             label: Text(_currentUser == null ? 'Créer le Profil' : 'Sauvegarder'),
@@ -291,7 +282,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           if (_currentUser != null) ...[
                             const SizedBox(height: 16),
                             
-                            // View test history button
                             OutlinedButton.icon(
                               icon: const Icon(Icons.history, size: 24),
                               label: const Text('Voir l\'Historique des Tests'),

@@ -30,7 +30,6 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
         child: SafeArea(
           child: Column(
             children: [
-              // App Logo Header with medical styling
               Container(
                 height: 200,
                 decoration: BoxDecoration(
@@ -87,7 +86,6 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                 ),
               ),
               
-              // Content
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
@@ -103,7 +101,6 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Title with medical styling
                           Row(
                             children: [
                               Icon(
@@ -126,7 +123,6 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                           
                           const SizedBox(height: 20),
                           
-                          // Description with medical typography
                           Text(
                             'Les maladies oculaires comme la cataracte, la rétinopathie diabétique et le glaucome peuvent affecter la vision. Cette application utilise une intelligence artificielle avancée pour analyser vos photos oculaires et détecter ces affections de manière préliminaire.',
                             style: theme.textTheme.bodyLarge?.copyWith(
@@ -137,7 +133,6 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                           
                           const SizedBox(height: 24),
                           
-                          // Disease examples with medical styling
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -180,7 +175,6 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                           
                           const SizedBox(height: 32),
                           
-                          // Medical disclaimer
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -214,7 +208,6 @@ class _EyeDiseasesHomePageState extends State<EyeDiseasesHomePage> {
                           
                           const Spacer(),
                           
-                          // Upload button with medical styling
                           Center(
                             child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(

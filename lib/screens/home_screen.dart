@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'upload_screen.dart';
-import 'user_profile_screen.dart';
+import 'test_history_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,20 +23,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('OculoCheck'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UserProfileScreen(),
-                ),
-              );
-            },
-            tooltip: 'Profil Utilisateur',
-          ),
-        ],
+        actions: const [],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -48,7 +45,6 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 20),
 
-                  // App Logo with medical styling
                   Center(
                     child: Container(
                       padding: const EdgeInsets.all(20),
@@ -73,7 +69,6 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  // Welcome message with medical typography
                   Text(
                     'Diagnostic Intelligent des Maladies Oculaires',
                     style: theme.textTheme.headlineLarge?.copyWith(
@@ -95,7 +90,6 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 40),
 
-                  // Disease information cards with medical styling
                   _buildDiseaseCard(
                     context,
                     'Rétinopathie Diabétique',
@@ -126,7 +120,6 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 40),
 
-                  // Medical disclaimer
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -160,28 +153,58 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  // Start diagnosis button with medical styling
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.camera_alt, size: 24),
-                    label: const Text('Commencer le Diagnostic'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UploadScreen(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.camera_alt, size: 24),
+                          label: const Text('Nouveau Diagnostic'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const UploadScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
+                            shadowColor: theme.colorScheme.primary.withOpacity(0.3),
+                          ),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 4,
-                      shadowColor: theme.colorScheme.primary.withOpacity(0.3),
-                    ),
+                      
+                      const SizedBox(width: 16),
+                      
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.history, size: 24),
+                          label: const Text('Historique'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const TestHistoryScreen(),
+                              ),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: theme.colorScheme.primary,
+                            side: BorderSide(color: theme.colorScheme.primary, width: 1.5),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -220,7 +243,6 @@ class HomeScreen extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Disease image with medical styling
               Container(
                 width: 80,
                 height: 80,
@@ -257,7 +279,6 @@ class HomeScreen extends StatelessWidget {
               
               const SizedBox(width: 20),
               
-              // Disease information
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

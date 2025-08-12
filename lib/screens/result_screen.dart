@@ -41,7 +41,6 @@ class ResultScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 20),
 
-                  // Result header card
                   Card(
                     elevation: 4,
                     shadowColor: _getResultColor(prediction).withOpacity(0.1),
@@ -60,7 +59,6 @@ class ResultScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(24.0),
                         child: Column(
                           children: [
-                            // Result icon
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
@@ -76,7 +74,6 @@ class ResultScreen extends StatelessWidget {
                             
                             const SizedBox(height: 24),
                             
-                            // Result title
                             Text(
                               _getResultTitle(prediction),
                               style: theme.textTheme.headlineMedium?.copyWith(
@@ -88,7 +85,6 @@ class ResultScreen extends StatelessWidget {
                             
                             const SizedBox(height: 16),
                             
-                            // Confidence indicator
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
@@ -118,7 +114,6 @@ class ResultScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Image display
                   Card(
                     elevation: 4,
                     shadowColor: theme.colorScheme.shadow,
@@ -138,7 +133,6 @@ class ResultScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Detailed result information
                   Card(
                     elevation: 4,
                     shadowColor: theme.colorScheme.shadow,
@@ -180,7 +174,6 @@ class ResultScreen extends StatelessWidget {
                           
                           const SizedBox(height: 20),
                           
-                          // Recommendations
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -228,7 +221,6 @@ class ResultScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Medical disclaimer
                   Card(
                     elevation: 2,
                     shadowColor: const Color(0xFFF6AD55).withOpacity(0.1),
@@ -284,7 +276,6 @@ class ResultScreen extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  // Action buttons
                   Row(
                     children: [
                       Expanded(
@@ -306,7 +297,6 @@ class ResultScreen extends StatelessWidget {
                           icon: const Icon(Icons.share),
                           label: const Text('Partager'),
                           onPressed: () {
-                            // TODO: Implement share functionality
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text('Fonctionnalité de partage à venir'),
@@ -338,18 +328,18 @@ class ResultScreen extends StatelessWidget {
   Color _getResultColor(String result) {
     switch (result.toLowerCase()) {
       case 'normal':
-        return const Color(0xFF38A169); // Green for normal
+        return const Color(0xFF38A169);
       case 'diabetic retinopathy':
       case 'rétinopathie diabétique':
-        return const Color(0xFFE53E3E); // Red for diabetic retinopathy
+        return const Color(0xFFE53E3E);
       case 'glaucoma':
       case 'glaucome':
-        return const Color(0xFF3182CE); // Blue for glaucoma
+        return const Color(0xFF3182CE);
       case 'cataract':
       case 'cataracte':
-        return const Color(0xFF805AD5); // Purple for cataract
+        return const Color(0xFF805AD5);
       default:
-        return const Color(0xFF2E5BBA); // Default medical blue
+        return const Color(0xFF2E5BBA);
     }
   }
 

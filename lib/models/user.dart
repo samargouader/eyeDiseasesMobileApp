@@ -13,7 +13,6 @@ class User {
     this.createdAt,
   });
 
-  // Convert User object to Map for database operations
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -24,7 +23,6 @@ class User {
     };
   }
 
-  // Create User object from Map (from database)
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       id: map['id'],
@@ -35,7 +33,6 @@ class User {
     );
   }
 
-  // Create a copy of User with updated fields
   User copyWith({
     int? id,
     String? name,
