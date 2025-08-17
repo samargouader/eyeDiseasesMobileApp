@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -41,7 +42,11 @@ class _UploadScreenState extends State<UploadScreen> {
       
       final labelsData = await DefaultAssetBundle.of(context).loadString('assets/labels.txt');
       setState(() {
-        _labels = labelsData.split('\n').where((e) => e.isNotEmpty).toList();
+        _labels = labelsData
+            .split(RegExp(r'\r?\n'))
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
       });
       
       print('Model and labels loaded successfully');
@@ -121,18 +126,35 @@ class _UploadScreenState extends State<UploadScreen> {
         }
       }
       
-      var output = List.filled(4, 0.0).reshape([1, 4]);
+      final numClasses = _labels.length;
+      var output = List.filled(numClasses, 0.0).reshape([1, numClasses]);
       _interpreter!.run(input.reshape([1, 224, 224, 3]), output);
-      
-      final scores = output[0] as List<double>;
-      final maxScore = scores.reduce((a, b) => a > b ? a : b);
-      final maxIdx = scores.indexOf(maxScore);
+
+      final raw = List<double>.from((output[0] as List).map((e) => (e as num).toDouble()));
+      // Convert logits to probabilities for stability
+      final probs = _softmax(raw);
+
+      // Guard: if output looks flat/uninformative, avertir
+      final mean = probs.reduce((a, b) => a + b) / probs.length;
+      final variance = probs.fold(0.0, (s, p) => s + (p - mean) * (p - mean)) / probs.length;
+      if (!probs.every((p) => p.isFinite) || variance < 1e-8) {
+        throw Exception("Sortie du modèle non exploitable (probas uniformes). Vérifiez l'image et le modèle.");
+      }
+
+      double maxScore = -1.0;
+      int maxIdx = 0;
+      for (int i = 0; i < probs.length; i++) {
+        if (probs[i] > maxScore) {
+          maxScore = probs[i];
+          maxIdx = i;
+        }
+      }
       
       if (maxIdx < 0 || maxIdx >= _labels.length) {
         throw Exception('Index de résultat invalide: $maxIdx');
       }
       _result = _labels[maxIdx];
-      _confidence = maxScore * 100;
+      _confidence = (maxScore * 100).clamp(0, 100);
       
     } catch (e) {
       print('Prediction error: $e');
@@ -144,6 +166,8 @@ class _UploadScreenState extends State<UploadScreen> {
         errorMessage = 'Modèle IA non disponible. Veuillez redémarrer l\'application.';
       } else if (e.toString().contains('Image non valide')) {
         errorMessage = 'Format d\'image non supporté. Veuillez choisir une autre image.';
+      } else if (e.toString().toLowerCase().contains('non exploitable')) {
+        errorMessage = 'Résultat non fiable. Veuillez réessayer avec une image plus nette et bien cadrée.';
       }
       
       ScaffoldMessenger.of(context).showSnackBar(
@@ -607,4 +631,16 @@ class _UploadScreenState extends State<UploadScreen> {
         return 'Résultat d\'analyse: $result';
     }
   }
+}
+
+List<double> _softmax(List<double> logits) {
+  if (logits.isEmpty) return logits;
+  final maxLogit = logits.reduce(math.max);
+  final exps = logits.map((x) => math.exp(x - maxLogit)).toList();
+  final sum = exps.fold(0.0, (a, b) => a + b);
+  if (sum == 0 || !sum.isFinite) {
+    // fallback to uniform distribution to trigger guard
+    return List<double>.filled(logits.length, 1.0 / logits.length);
+  }
+  return exps.map((e) => e / sum).toList();
 }
