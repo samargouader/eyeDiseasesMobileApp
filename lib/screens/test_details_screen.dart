@@ -64,7 +64,7 @@ class _TestDetailsScreenState extends State<TestDetailsScreen> {
                       // Confidentialité: masquer nom et prénom
                       _buildRow('Patient', 'Anonyme'),
                       _buildRow('Âge', '${_test!['age']}'),
-                      _buildRow('Résultat', '${_test!['result']}'),
+                      _buildRow('Résultat', _formatLabel('${_test!['result']}')),
                       if (_test!['createdAt'] != null)
                         _buildRow('Date', '${_test!['createdAt']}'),
                     ],
@@ -101,6 +101,15 @@ class _TestDetailsScreenState extends State<TestDetailsScreen> {
       ),
     );
   }
+}
+
+String _formatLabel(String raw) {
+  final clean = raw.toString().replaceAll('_', ' ').trim();
+  if (clean.isEmpty) return clean;
+  return clean
+      .split(RegExp(r'\s+'))
+      .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+      .join(' ');
 }
 
 

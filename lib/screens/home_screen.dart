@@ -15,14 +15,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('OculoCheck'),
@@ -34,54 +29,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 case 'tips':
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const TipsScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const TipsScreen()),
                   );
                   break;
                 case 'settings':
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
                   );
                   break;
                 case 'about':
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const AboutScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const AboutScreen()),
                   );
                   break;
                 case 'faq':
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const FaqScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const FaqScreen()),
                   );
                   break;
               }
             },
             itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'tips',
-                child: Text('Conseils'),
-              ),
-              PopupMenuItem(
-                value: 'settings',
-                child: Text('Paramètres'),
-              ),
-              PopupMenuItem(
-                value: 'faq',
-                child: Text('FAQ'),
-              ),
-              PopupMenuItem(
-                value: 'about',
-                child: Text('À propos'),
-              ),
+              PopupMenuItem(value: 'tips', child: Text('Conseils')),
+              PopupMenuItem(value: 'settings', child: Text('Paramètres')),
+              PopupMenuItem(value: 'faq', child: Text('FAQ')),
+              PopupMenuItem(value: 'about', child: Text('À propos')),
             ],
           ),
         ],
@@ -89,10 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              theme.colorScheme.background,
-              theme.colorScheme.surface,
-            ],
+            colors: [theme.colorScheme.background, theme.colorScheme.surface],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -138,9 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   Text(
                     'Analysez vos photos oculaires avec notre technologie d\'intelligence artificielle pour détecter les maladies courantes.',
                     style: theme.textTheme.bodyLarge?.copyWith(
@@ -158,9 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Complication du diabète affectant la rétine. Détection précoce essentielle pour préserver la vision.',
                     const Color(0xFFE53E3E),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   _buildDiseaseCard(
                     context,
                     'Glaucome',
@@ -168,9 +140,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Augmentation de la pression intraoculaire pouvant endommager le nerf optique.',
                     const Color(0xFF3182CE),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   _buildDiseaseCard(
                     context,
                     'Cataracte',
@@ -184,12 +156,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: theme.brightness == Brightness.dark 
+                      color: theme.brightness == Brightness.dark
                           ? const Color(0xFF1A0F00)
                           : const Color(0xFFFEF5E7),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: theme.brightness == Brightness.dark 
+                        color: theme.brightness == Brightness.dark
                             ? const Color(0xFF92400E)
                             : const Color(0xFFF6AD55),
                         width: 1,
@@ -199,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Icon(
                           Icons.info_outline,
-                          color: theme.brightness == Brightness.dark 
+                          color: theme.brightness == Brightness.dark
                               ? const Color(0xFFF59E0B)
                               : const Color(0xFFDD6B20),
                           size: 20,
@@ -209,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text(
                             'Ce diagnostic est informatif et ne remplace pas une consultation médicale professionnelle.',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.brightness == Brightness.dark 
+                              color: theme.brightness == Brightness.dark
                                   ? const Color(0xFFF59E0B)
                                   : const Color(0xFFDD6B20),
                               fontWeight: FontWeight.w500,
@@ -222,39 +194,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 32),
 
+                  // --- Boutons harmonisés ---
                   Row(
                     children: [
                       Expanded(
-                        child: Tooltip(
-                          message: 'Démarrer un nouveau diagnostic avec une photo',
-                          child: ElevatedButton.icon(
-                            icon: const Icon(Icons.camera_alt, size: 24),
-                            label: const Text('Nouveau diagnostic'),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const UploadScreen(),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 22),
-                              minimumSize: const Size.fromHeight(56),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              elevation: 4,
-                              shadowColor: theme.colorScheme.primary.withOpacity(0.3),
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.camera_alt, size: 24),
+                          label: const Text('Nouveau diagnostic'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const UploadScreen()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            minimumSize: const Size.fromHeight(56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
+                            elevation: 4,
+                            shadowColor: theme.colorScheme.primary.withOpacity(0.3),
+                            textStyle: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
-                      
                       const SizedBox(width: 16),
-                      
                       Expanded(
                         child: OutlinedButton.icon(
                           icon: const Icon(Icons.history, size: 24),
@@ -262,18 +229,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => const TestHistoryScreen(),
-                              ),
+                              MaterialPageRoute(builder: (context) => const TestHistoryScreen()),
                             );
                           },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: theme.colorScheme.primary,
                             side: BorderSide(color: theme.colorScheme.primary, width: 1.5),
                             padding: const EdgeInsets.symmetric(vertical: 20),
+                            minimumSize: const Size.fromHeight(56),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
+                            textStyle: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
@@ -289,14 +256,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDiseaseCard(
-    BuildContext context,
-    String title,
-    String imagePath,
-    String description,
-    Color accentColor,
-  ) {
+      BuildContext context,
+      String title,
+      String imagePath,
+      String description,
+      Color accentColor,
+      ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: 4,
       shadowColor: accentColor.withOpacity(0.1),
@@ -349,9 +316,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 20),
-              
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,4 +348,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

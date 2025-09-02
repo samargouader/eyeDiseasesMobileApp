@@ -86,7 +86,7 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Historique des Tests'),
@@ -102,227 +102,349 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFF8FAFC),
-                    Color(0xFFF1F5F9),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFF8FAFC),
+              Color(0xFFF1F5F9),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: _testsWithUserInfo.isEmpty
+            ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.history,
+                size: 64,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Aucun test effectué',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              child: _testsWithUserInfo.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.history,
-                            size: 64,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Aucun test effectué',
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Commencez par effectuer votre premier diagnostic',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    )
-                  : SafeArea(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _testsWithUserInfo.length,
-                        itemBuilder: (context, index) {
-                          final test = _testsWithUserInfo[index];
-                          final resultColor = _getResultColor(test['result']);
-                          
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            elevation: 4,
-                            shadowColor: resultColor.withOpacity(0.1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: resultColor.withOpacity(0.2),
-                                  width: 1,
-                                ),
+              const SizedBox(height: 8),
+              Text(
+                'Commencez par effectuer votre premier diagnostic',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        )
+            : SafeArea(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: _testsWithUserInfo.length,
+            itemBuilder: (context, index) {
+              final test = _testsWithUserInfo[index];
+              final resultColor = _getResultColor(test['result']);
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                elevation: 4,
+                shadowColor: resultColor.withOpacity(0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: resultColor.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor:
+                              theme.colorScheme.primary
+                                  .withOpacity(0.1),
+                              child: Icon(
+                                Icons.person,
+                                color: theme.colorScheme.primary,
+                                size: 20,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                                          child: Icon(
-                                            Icons.person,
-                                            color: theme.colorScheme.primary,
-                                            size: 20,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Patient anonyme',
-                                                style: theme.textTheme.titleMedium?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              if (test['age'] != null)
-                                                Text(
-                                                  'Âge: ${test['age']} ans',
-                                                  style: theme.textTheme.bodySmall?.copyWith(
-                                                    color: theme.colorScheme.onSurfaceVariant,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                        Text(
-                                          _formatDate(test['createdAt']),
-                                          style: theme.textTheme.bodySmall?.copyWith(
-                                            color: theme.colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ],
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Patient anonyme',
+                                    style: theme
+                                        .textTheme.titleMedium
+                                        ?.copyWith(
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    
-                                    const SizedBox(height: 16),
-                                    
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.file(
-                                        File(test['imagePath']),
-                                        height: 120,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => Container(
-                                          height: 120,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: theme.colorScheme.surfaceVariant,
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Icon(
-                                            Icons.image_not_supported,
-                                            color: theme.colorScheme.onSurfaceVariant,
-                                            size: 32,
-                                          ),
-                                        ),
+                                  ),
+                                  if (test['age'] != null)
+                                    Text(
+                                      'Âge: ${test['age']} ans',
+                                      style: theme
+                                          .textTheme.bodySmall
+                                          ?.copyWith(
+                                        color: theme
+                                            .colorScheme
+                                            .onSurfaceVariant,
                                       ),
                                     ),
-                                    
-                                    const SizedBox(height: 16),
-                                    
-                                    Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: resultColor.withOpacity(0.1),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            _getResultIcon(test['result']),
-                                            color: resultColor,
-                                            size: 24,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                test['result'],
-                                                style: theme.textTheme.titleMedium?.copyWith(
-                                                  color: resultColor,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    
-                                    const SizedBox(height: 12),
-                                    
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: OutlinedButton.icon(
-                                            icon: const Icon(Icons.visibility, size: 16),
-                                            label: const Text('Voir Détails'),
-                                            onPressed: () async {
-                                              final id = test['id'] as int;
-                                              await Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: (_) => TestDetailsScreen(testId: id),
-                                                ),
-                                              );
-                                            },
-                                            style: OutlinedButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(vertical: 8),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: OutlinedButton.icon(
-                                            icon: const Icon(Icons.share, size: 16),
-                                            label: const Text('Partager'),
-                                            onPressed: () {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: const Text('Fonctionnalité à venir'),
-                                                  backgroundColor: theme.colorScheme.primary,
-                                                ),
-                                              );
-                                            },
-                                            style: OutlinedButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(vertical: 8),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                ],
                               ),
                             ),
-                          );
-                        },
-                      ),
+                            Text(
+                              _formatDate(test['createdAt']),
+                              style: theme.textTheme.bodySmall
+                                  ?.copyWith(
+                                color: theme
+                                    .colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(test['imagePath']),
+                            height: 120,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) =>
+                                Container(
+                                  height: 120,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color:
+                                    theme.colorScheme.surfaceVariant,
+                                    borderRadius:
+                                    BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    color:
+                                    theme.colorScheme.onSurfaceVariant,
+                                    size: 32,
+                                  ),
+                                ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: resultColor.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                _getResultIcon(test['result']),
+                                color: resultColor,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    test['result'],
+                                    style: theme
+                                        .textTheme.titleMedium
+                                        ?.copyWith(
+                                      color: resultColor,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // --- Boutons stylés et alignés ---
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _styledButton(
+                                context,
+                                icon: Icons.visibility,
+                                label: 'Voir Détails',
+                                onPressed: () async {
+                                  final id = test['id'] as int;
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          TestDetailsScreen(
+                                              testId: id),
+                                    ),
+                                  );
+                                },
+                                borderColor:
+                                theme.colorScheme.primary,
+                                textColor:
+                                theme.colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _styledButton(
+                                context,
+                                icon: Icons.share,
+                                label: 'Partager',
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                    SnackBar(
+                                      content: const Text(
+                                          'Fonctionnalité à venir'),
+                                      backgroundColor:
+                                      theme.colorScheme.primary,
+                                    ),
+                                  );
+                                },
+                                borderColor:
+                                theme.colorScheme.primary,
+                                textColor:
+                                theme.colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _styledButton(
+                                context,
+                                icon: Icons.delete_outline,
+                                label: 'Supprimer',
+                                onPressed: () async {
+                                  final id = test['id'] as int;
+                                  final confirm =
+                                  await showDialog<bool>(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: const Text(
+                                          'Supprimer le test ?'),
+                                      content: const Text(
+                                          'Cette action est irréversible.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(ctx)
+                                                  .pop(false),
+                                          child:
+                                          const Text('Annuler'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(ctx)
+                                                  .pop(true),
+                                          child:
+                                          const Text('Supprimer'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirm == true) {
+                                    try {
+                                      await _databaseService
+                                          .deleteTest(id);
+                                      setState(() {
+                                        _testsWithUserInfo.removeWhere(
+                                                (t) => t['id'] == id);
+                                      });
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: const Text(
+                                                'Test supprimé'),
+                                            backgroundColor:
+                                            theme.colorScheme
+                                                .error,
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                'Erreur lors de la suppression: $e'),
+                                            backgroundColor:
+                                            theme.colorScheme
+                                                .error,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  }
+                                },
+                                borderColor:
+                                theme.colorScheme.error,
+                                textColor: theme.colorScheme.error,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-            ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _styledButton(
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required VoidCallback onPressed,
+        required Color borderColor,
+        required Color textColor,
+      }) {
+    return OutlinedButton.icon(
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        side: BorderSide(color: borderColor, width: 1.5),
+        foregroundColor: textColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      ),
     );
   }
 }

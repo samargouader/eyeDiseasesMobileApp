@@ -561,7 +561,8 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   Color _getResultColor(String result) {
-    switch (result.toLowerCase()) {
+    final r = result.replaceAll('_', ' ').toLowerCase();
+    switch (r) {
       case 'normal':
         return const Color(0xFF38A169);
       case 'diabetic retinopathy':
@@ -579,7 +580,8 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   IconData _getResultIcon(String result) {
-    switch (result.toLowerCase()) {
+    final r = result.replaceAll('_', ' ').toLowerCase();
+    switch (r) {
       case 'normal':
         return Icons.check_circle;
       case 'diabetic retinopathy':
@@ -597,7 +599,8 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   String _getResultTitle(String result) {
-    switch (result.toLowerCase()) {
+    final r = result.replaceAll('_', ' ').toLowerCase();
+    switch (r) {
       case 'normal':
         return 'Aucune Maladie Détectée';
       case 'diabetic retinopathy':
@@ -610,12 +613,13 @@ class _UploadScreenState extends State<UploadScreen> {
       case 'cataracte':
         return 'Cataracte Détectée';
       default:
-        return 'Résultat: $result';
+        return 'Résultat: ${result.replaceAll('_', ' ')}';
     }
   }
 
   String _getResultDescription(String result) {
-    switch (result.toLowerCase()) {
+    final r = result.replaceAll('_', ' ').toLowerCase();
+    switch (r) {
       case 'normal':
         return 'Votre œil semble en bonne santé. Continuez à maintenir une bonne hygiène oculaire.';
       case 'diabetic retinopathy':
@@ -628,7 +632,7 @@ class _UploadScreenState extends State<UploadScreen> {
       case 'cataracte':
         return 'Des signes de cataracte ont été détectés. Consultez un ophtalmologue pour évaluation.';
       default:
-        return 'Résultat d\'analyse: $result';
+        return 'Résultat d\'analyse: ${result.replaceAll('_', ' ')}';
     }
   }
 }
